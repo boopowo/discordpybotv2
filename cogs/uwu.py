@@ -23,8 +23,8 @@ class uwu(commands.Cog):
     async def uwu(self, ctx):
         message = await ctx.channel.history(limit = 2).flatten()
         content = message[1].content
-        content = re.sub('l|r', 'w', content)
-        content = re.sub('L|R', 'W', content)
+        content = re.sub('l|r|v', 'w', content)
+        content = re.sub('L|R|V', 'W', content)
         await ctx.send(content + " uwu")
     
     @commands.command()
