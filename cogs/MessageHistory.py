@@ -2,6 +2,7 @@ import discord
 import datetime
 import pytz
 import time
+import re
 from discord.ext import commands
 from datetime import datetime
 
@@ -20,15 +21,14 @@ class MessageHistory(commands.Cog):
         print('MessageHistory Ready {}'.format(current_time()))
     
     @commands.command()
-    async def words_top(self, ctx, words, message_amount, guild_name, channel_name):
+    async def topwordsinchannel(self, ctx, words, message_amount, guild_name, channel_name):
         start_time = time.time()
         valid_server = False
         valid_channel = False
-        await ctx.send('Attempting to retrieve top {} words through past {} messages in server: "{}" channel: #{}\nThis might take a while...'.format(
+        await ctx.send('Attempting to retrieve top {} words through past {} messages in server: {} channel: #{}\nThis might take a while...'.format(
             words, message_amount,guild_name,channel_name
             ))
         try:
-            channel_list = []
         
             for guild in self.client.guilds:
                 if str(guild.name) == str(guild_name):
@@ -45,20 +45,16 @@ class MessageHistory(commands.Cog):
             message_content = []
             for message in messages:
                 message_content.append(message.content.lower())
-            for i in range(len(message_content)):
-                splt = message_content[i].split()
-                for j in range(len(splt)):
-                    s = ""
-                    for k in range(len(splt[j])):
-                        letter = splt[j][k]
-                        if letter.isalnum():
-                            s += letter
-                    if len(s) == 0:
+            for m in message_content:
+                splt = m.split()
+                for i in range(len(splt)):
+                    splt[i] = re.sub('\W+', '', splt[i]) 
+                    if len(splt[i]) == 0:
                         pass
-                    elif s in word_list:
-                        word_list[s] += 1
+                    elif splt[i] in word_list:
+                        word_list[splt[i]] += 1
                     else:
-                        word_list[s] = 1
+                        word_list[splt[i]] = 1
             sorted_wordlist = dict(sorted(word_list.items(), key = lambda x:x[1], reverse = True))
             output = "{:<10} {:<30} {:<10}\n".format(
                 "Rank", "Word", "Frequency"
@@ -87,16 +83,15 @@ class MessageHistory(commands.Cog):
             print(e)
             
     @commands.command()
-    async def users_top(self, ctx, users, message_amount, guild_name, channel_name):
+    async def topusersinchannel(self, ctx, users, message_amount, guild_name, channel_name):
         start_time = time.time()
         valid_server = False
         valid_channel = False
-        await ctx.send('Attempting to retrieve top {} users through last {} messages in server: "{}" channel: #{}\nThis might take a while...'.format(
+        await ctx.send('Attempting to retrieve top {} users through last {} messages in server: {} channel: #{}\nThis might take a while...'.format(
             users, message_amount,guild_name,channel_name
         ))
         try:
-            channel_list = []
-        
+            
             for guild in self.client.guilds:
                 if str(guild.name) == str(guild_name):
                     found_guild = guild
@@ -143,6 +138,8 @@ class MessageHistory(commands.Cog):
             if len(output) > 1500:
                 await ctx.send('Result may be too long for discord. Will fix in the future.')
             print(e)
+
+
 def setup(client):
     client.add_cog(MessageHistory(client))
         
