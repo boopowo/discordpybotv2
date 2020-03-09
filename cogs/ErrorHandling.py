@@ -24,6 +24,8 @@ class ErrorHandling(commands.Cog):
             await ctx.send('Command not found')
         elif isinstance(error, commands.MissingRequiredArgument):
             await ctx.send('Missing required argument')
+        elif isinstance(error, commands.ExtensionAlreadyLoaded):
+            await ctx.send('Extension already loaded')
         else:
             print('{} {}'.format(error, current_time()))
 
